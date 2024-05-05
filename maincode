@@ -1,0 +1,216 @@
+class CheckersGame () :
+    def __init__ (self) :
+        self.board =[[0,2,0,2,0,2,0,2], 
+                [2,0,2,0,2,0,2,0],
+                [0,2,0,2,0,2,0,2],
+                [0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0],
+                [1,0,1,0,1,0,1,0],
+                [0,1,0,1,0,1,0,1],
+                [1,0,1,0,1,0,1,0]] 
+        
+        self.whoseMove = "white"
+        self.isWon = False
+    
+    
+    def parseMove (self, move) :
+        
+#         p = 0 
+#         while(p < len(moves)):
+            
+
+        moves = move.split()            
+        result = [-1] * len(moves)
+       
+        for i in range(len(moves)):
+            Y = int(moves[i][0])
+            X = int(moves[i][1])
+            if (X < 0 or X > 7 or Y < 0 or Y > 7 ):
+                raise ValueError
+            result[i] = tuple((Y,X))
+        return tuple(result)
+    
+    def checkWinner(self) :
+        white = 1 
+        red = 1
+        for i in range(8):
+            for j in range(8):
+                if(self.board[i][j] == 2):
+                    white = 0
+                if(self.board[i][j] == 1):
+                    red = 0
+                if(white == 0 and red == 0 ):
+                    return
+        if(white == 1):
+            self.isWon= "white"
+        if(red == 1):
+            self.isWon= "red"
+    
+    def changeTurn(self):
+
+        if(self.whoseMove == "white"):
+            self.whoseMove = "red"
+        else:
+            self.whoseMove = "white"
+    
+    def move(self, move) :
+        moves = self.parseMove(move)
+        i = 0
+        
+        while(i < len(moves) -1 ):
+            y,x = moves[i]
+            new_y , new_x = moves[i+1]
+            
+            if(abs(y - new_y) == 2):
+                captured_x = int((new_x + x)/2)
+                captured_y = int((new_y + y)/2)
+                self.board[captured_y][captured_x] = 0
+                
+            if(new_y == 7 and board[y][x] == 2):
+                self.board[new_y][new_x] = 4
+            elif(new_y == 0 and board[y][x] == 1 ):
+                self.board[new_y][new_x] = 3
+            else:
+                self.board[new_y][new_x] = self.board[y][x]
+            
+            self.board[y][x] = 0 
+            i = i + 1
+        
+        self.changeTurn()
+        self.checkWinner()
+        
+    def isValidMove(self, move) :
+        
+        ### If game is ended
+        if (self.isWon == "white" or self.isWon == "red"):
+            return False
+           
+        moves = self.parseMove(move) 
+
+        
+        con = 1 
+        for i in range(len(moves) -1 ):
+            
+            if(con == 0):
+                return False
+            con = 0
+            y,x = moves[i]
+            new_y , new_x = moves[i + 1]
+            
+        
+            if self.whoseMove == "white":
+                if( self.board[y][x] != 1 and self.board[y][x] != 3):
+                    return False
+            
+            if self.whoseMove == "red":
+                if( self.board[y][x] != 2 and self.board[y][x] != 4):
+                    return False
+                
+            
+            if self.board[new_y][new_x] != 0:
+                return False
+            
+            if self.board[y][x] == 1:
+                    if new_y >= y:
+                        return False      
+                    if y - new_y == 2:
+                        captured_x = int((new_x + x)/2)
+                        captured_y = int((new_y + y)/2)
+                        con = 1
+                        if self.board[captured_y][captured_x] !=2 and self.captured!= 4 :
+                            return False
+                        
+                    
+            if self.board[y][x] == 2:
+                    if new_y <= y:
+                        False
+                    if new_y - y == 2:
+                        captured_x = int((new_x + x)/2)
+                        captured_y = int((new_y + y)/2)
+                        con = 1
+                        if self.board[captured_y][captured_x] !=1 and self.captured!= 3 :
+                            return False
+                
+            if self.board[y][x] == 3 :
+                 if abs(new_y - y) == 2:
+                    captured_x = int((new_x + x)/2)
+                    captured_y = int((new_y + y)/2)
+                    con = 1
+                    if self.board[captured_y][captured_x] !=2 and self.captured!= 4:
+                        return False
+                    
+            if self.board[y][x] == 4:
+                if abs(new_y - y) == 2:
+                    captured_x = int((new_x + x)/2)
+                    captured_y = int((new_y + y)/2)
+                    con = 1
+                    if self.board[captured_y][captured_x] !=2 and self.captured!= 4:
+                        return False
+
+    
+            return True
+            
+            
+        
+        
+### EVERYTHING PAST THIS POINT IS A GIFT: Don't touch until December 25th        
+    def __str__ (self) :
+        out = "  0 1 2 3 4 5 6 7 \n  ╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
+        i = 0
+        for row in self.board :
+            out += f"{str(i)}║"
+            j = 0
+            for item in row :
+                if item == 0:
+                    out += "░" if (i + j) % 2 == 0 else " "
+                elif item >= 1 and item <= 4:
+                    out += ["○", "●", "♔", "♚"][item-1]
+                out += "│"
+                j += 1
+            out = out[:-1]
+            out += f"║{str(i)}\n ╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+            i += 1
+        out = out[:-18]
+        out += "╚═╧═╧═╧═╧═╧═╧═╧═╝\n  0 1 2 3 4 5 6 7 \n"
+        return out
+    
+def runGame (init = False, moveList = False) :
+    game = CheckersGame()
+
+    if (init != False) :
+        game.board = init
+    
+    print("Checkers Initialized...")
+    print(game)
+    if (moveList != False) :
+        print("Move List Detected, executing moves")
+        for move in moveList :
+            print(f"{game.whoseMove} makes move {move}\n")
+            if (move == "q") :
+                return
+            if (game.isValidMove(move)) :
+                game.move(move)
+                print(game)
+                if (game.isWon != 0) :
+                    break
+            else :
+                print("Invalid Move")    
+                
+    print("Moves must be typed as coordinates (with no commas or brackets) separated by spaces. Row, then column.")
+    print("Example: 54 43")
+    print("When performing multiple jumps, enter each co-ordinate your piece will land on in sequence.")
+    while (game.isWon == False) :
+        print(f"{game.whoseMove} to move")
+        move = input(">> ")
+        if (move == "q") :
+            return
+        if (game.isValidMove(move)) :
+            game.move(move)
+            print(game)
+            if (game.isWon != 0) :
+                break
+        else :
+            print("Invalid Move")
+    print("The Game is Finished!")
+    print(f"Congratulations, {game.isWon}!")
+
